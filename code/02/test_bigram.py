@@ -9,7 +9,7 @@ from collections import defaultdict
 #coverageはtypeなので別個で考える
 def test_unigram():
 
-	train_model_dic = {}
+	train_model_dic = defaultdict(float)
 	all_bigram_token_frequency = 0
 	all_entropy = 0
 	unigram_known_word_freq = 0.1 #グリッド探索でfor文でループさせる必要がある
@@ -31,18 +31,14 @@ def test_unigram():
 		for i in range(1, len(test_word_list) - 1):
 			all_bigram_token_frequency += 1
 			# unigramのエントロピーの計算
-			if test_word_list[i] in train_model_dic:
-				unigram_each_entory = unigram_known_word_freq * train_model_dic[test_word_list[i]] + float(1 - unigram_known_word_freq) / tokens
-			else:
-				unigram_each_entory = float(1 - unigram_known_word_freq) / tokens
+			unigram_each_entory = unigram_known_word_freq * train_model_dic[test_word_list[i]] + float(1 - unigram_known_word_freq) / tokens
 
 			# bigramのエントロピーの計算
 			bigram = "%s\t%s" % (test_word_list[i - 1], test_word_list[i])
-			if bigram in train_model_dic:
-				bigram_each_entory = bigram_known_word_freq * train_model_dic[bigram] + float(1 - bigram_known_word_freq) * unigram_each_entory
-			else:
-				bigram_each_entory = float(1 - bigram_known_word_freq) * unigram_each_entory
+			if bigram not in train_model_dic:
 				unknown_bigram_count += 1
+			bigram_each_entory = bigram_known_word_freq * train_model_dic[bigram] + float(1 - bigram_known_word_freq) * unigram_each_entory
+			
 			all_entropy -= math.log(bigram_each_entory,2)
 
 	#エントロピーとパープレキシー計算を行う
